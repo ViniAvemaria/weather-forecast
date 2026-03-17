@@ -21,7 +21,9 @@ export function WeatherProvider({ children }) {
 
     const searchCities = async (query) => {
         try {
-            const res = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${API_KEY}`);
+            const res = await fetch(
+                `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${API_KEY}`,
+            );
 
             if (!res.ok) throw new Error("Request failed");
 
