@@ -15,7 +15,7 @@ const Forecast = ({ day }) => {
     const Icon = iconMap[day?.weather?.[0]?.icon];
 
     return (
-        <div className="flex flex-col w-full min-w-45 max-w-47 gap-8 items-center border border-primary-border py-6 rounded-lg bg-primary-bg">
+        <div className="flex flex-col w-full gap-8 items-center border border-primary-border py-6 max-sm:py-4 rounded-lg bg-primary-bg">
             <h2 className="text-lg">{isTomorrow ? "Tomorrow" : weekDay}</h2>
             <h3 className="text-muted-text text-sm">{date}</h3>
             <Icon className="w-15 h-15" />

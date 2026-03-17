@@ -1,13 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { CloudRainIcon } from "@/components/ui/cloud-rain";
 import { useWeather } from "@/contexts/WeatherContext";
-import { Search as Magnifying, MapPin, X } from "lucide-react";
+import { X } from "lucide-react";
+import { SearchIcon } from "@/components/ui/search";
+import { MapPinIcon } from "@/components/ui/map-pin";
 
 const Header = () => {
     const { searchResult, setSearchResult, setCoor, searchCities } = useWeather();
     const [query, setQuery] = useState("");
     const [isResultOpen, setIsResultOpen] = useState(false);
+    const [locationLoading, setLocationLoading] = useState(false);
     const inputRef = useRef(null);
+    const searchIconRef = useRef(null);
+    const mapPinIconRef = useRef(null);
 
     useEffect(() => {
         if (!query) return;
@@ -16,25 +21,30 @@ const Header = () => {
     }, [searchResult, query]);
 
     const handleLocation = async () => {
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                const { latitude, longitude } = pos.coords;
-                setCoor({ lat: latitude, lon: longitude });
-            },
-            (err) => {
-                console.error(err);
-            },
-        );
+        setLocationLoading(true);
+
+        try {
+            const pos = await new Promise((resolve, reject) =>
+                navigator.geolocation.getCurrentPosition(resolve, reject),
+            );
+
+            const { latitude, longitude } = pos.coords;
+            setCoor({ lat: latitude, lon: longitude });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLocationLoading(false);
+        }
     };
 
     return (
-        <div className="flex justify-between pt-10">
+        <div className="flex justify-between pt-10 gap-4 max-[900px]:flex-col">
             <div className="flex items-center gap-3 font-semibold">
-                <CloudRainIcon size={40} className="text-primary-accent" />
-                <h2 className="text-3xl whitespace-nowrap">Weather Forecast</h2>
+                <CloudRainIcon className="text-primary-accent h-12 w-12 max-xs:h-10 max-xs:w-10" />
+                <h2 className="text-3xl whitespace-nowrap max-xs:text-2xl">Weather Forecast</h2>
             </div>
 
-            <div className="flex items-center w-full max-w-130 gap-3 max-sm:flex-col max-sm:gap-4">
+            <div className="flex items-center w-full max-w-130 gap-3 max-[900px]:max-w-full max-[900px]:mt-3 max-[550px]:flex-col">
                 <div className="relative w-full">
                     <div className="flex items-center gap-2 pr-1 bg-input-bg border border-primary-border rounded-lg w-full transition-colors duration-300 ease focus-within:border-primary-accent">
                         <input
@@ -47,7 +57,7 @@ const Header = () => {
                                     if (query !== "") searchCities(query);
                                 }
                             }}
-                            className="py-1.5 pl-3 w-full focus:outline-none"
+                            className="py-1.5 pl-3 w-full focus:outline-none max-[550px]:py-1.25"
                             type="text"
                             placeholder="Search for a city..."
                             autoComplete="off"
@@ -66,7 +76,7 @@ const Header = () => {
                     </div>
 
                     <div
-                        className={`absolute w-full mt-1 bg-input-bg border border-primary-border rounded-lg overflow-y-scroll transition-opacity-height duration-300 ease ${isResultOpen ? "opacity-100 max-h-55" : "opacity-0 max-h-0"}`}
+                        className={`absolute w-full bg-input-bg border border-primary-border rounded-lg overflow-y-scroll transition-opacity-height duration-300 ease ${isResultOpen ? "opacity-100 max-h-55" : "opacity-0 max-h-0"}`}
                     >
                         {searchResult.map((city) => (
                             <button
@@ -84,23 +94,32 @@ const Header = () => {
                     </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 max-[550px]:w-full">
                     <button
+                        onMouseEnter={() => searchIconRef.current?.startAnimation()}
+                        onMouseLeave={() => searchIconRef.current?.stopAnimation()}
+                        disabled={locationLoading}
                         onClick={() => {
                             if (query !== "") searchCities(query);
                         }}
-                        className="flex items-center justify-center gap-1.5 whitespace-nowrap bg-primary-accent hover:bg-accent-hover cursor-pointer transition-colors duration-300 ease rounded-lg px-2.5 py-1.5 max-sm:w-full"
+                        className={`flex items-center justify-center gap-1.5 whitespace-nowrap bg-primary-accent hover:bg-accent-hover transition-colors duration-300 ease rounded-lg px-2.5 py-1.5 max-[550px]:w-full ${locationLoading ? "cursor-not-allowed" : "cursor-pointer"}`}
                     >
-                        <Magnifying className="w-4 h-4" />
+                        <SearchIcon ref={searchIconRef} size={16} />
                         Search
                     </button>
 
                     <button
+                        onMouseEnter={() => mapPinIconRef.current?.startAnimation()}
+                        onMouseLeave={() => mapPinIconRef.current?.stopAnimation()}
                         onClick={handleLocation}
-                        className="flex items-center justify-center gap-1.5 whitespace-nowrap bg-secondary-bg hover:bg-dark-hover cursor-pointer transition-colors duration-300 ease rounded-lg px-2.5 py-1.5 max-sm:w-full"
+                        disabled={locationLoading}
+                        className={`flex items-center justify-center gap-1.5 whitespace-nowrap relative overflow-hidden px-2.5 py-1.5 rounded-lg transition-colors duration-300 ease max-[550px]:w-full ${locationLoading ? "bg-secondary-bg cursor-not-allowed" : "bg-secondary-bg hover:bg-dark-hover cursor-pointer"}`}
                     >
-                        <MapPin className="w-4 h-4" />
-                        Location
+                        {locationLoading && (
+                            <span className="absolute inset-0 animate-shimmer bg-linear-to-r from-transparent via-primary-shimmer to-transparent" />
+                        )}
+                        <MapPinIcon ref={mapPinIconRef} size={16} className="z-10" />
+                        <span className="z-10">{locationLoading ? "Locating..." : "Location"}</span>
                     </button>
                 </div>
             </div>

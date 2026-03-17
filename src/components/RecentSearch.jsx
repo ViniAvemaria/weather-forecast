@@ -9,7 +9,7 @@ import { X } from "lucide-react";
 const RecentSearch = ({ cityId, index }) => {
     const API_KEY = import.meta.env.VITE_OPEN_WEATHER_KEY;
 
-    const { setCoor, removeRecentSearch } = useWeather();
+    const { setCoor, recentSearch, removeRecentSearch } = useWeather();
 
     const [weather, setWeather] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -45,7 +45,7 @@ const RecentSearch = ({ cityId, index }) => {
                     setCoor({ lat: weather.coord.lat, lon: weather.coord.lon });
                     window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
-                className="group relative flex flex-col w-full min-w-45 max-w-47 gap-8 border border-primary-border p-4 rounded-lg bg-primary-bg cursor-pointer hover:bg-primary-border transition-colors duration-300 ease"
+                className={`group relative flex flex-col w-full gap-8 border border-primary-border p-4 rounded-lg bg-primary-bg cursor-pointer hover:bg-primary-border transition-colors duration-300 ease ${recentSearch.length === 1 && "xs:max-w-[50%]"}`}
             >
                 <div className="flex justify-between gap-2 pr-2">
                     <div className="flex flex-col gap-1 min-w-0">
@@ -72,7 +72,7 @@ const RecentSearch = ({ cityId, index }) => {
                     }}
                     className="absolute right-0 top-0 p-1.25 text-muted-text hover:text-primary-text"
                 >
-                    <X className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-colors-opacity duration-200 ease" />
+                    <X className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-colors-opacity duration-200 ease max-md:opacity-100" />
                 </div>
             </div>
         )

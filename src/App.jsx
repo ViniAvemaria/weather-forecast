@@ -7,7 +7,7 @@ function App() {
     const { coor } = useWeather();
 
     return (
-        <div className="text-primary-text bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 min-h-dvh">
+        <div className="text-primary-text bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 min-h-dvh min-w-90">
             <main className="max-w-275 mx-auto px-8 max-sm:px-6">
                 <AnimatePresence mode="wait">
                     {!coor.lat && !coor.lon ? (

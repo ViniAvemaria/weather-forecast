@@ -66,8 +66,9 @@ const CloudRainIcon = forwardRef(({ onMouseEnter, onMouseLeave, className, size 
     );
 
     return (
-        <div className={cn(className)} {...props}>
+        <div {...props}>
             <svg
+                className={cn(className)}
                 fill="none"
                 height={size}
                 stroke="currentColor"

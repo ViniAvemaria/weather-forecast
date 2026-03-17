@@ -6,6 +6,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+    --breakpoint-xs: 480px;
+
     --color-primary-bg: #1d293d;
     --color-secondary-bg: #334155;
     --color-footer-bg: #020617;
@@ -19,7 +21,7 @@
 
     --color-primary-border: #314158;
     --color-card-bg: #0f172a;
-    --color-primary-shimmer: #1e293b;
+    --color-primary-shimmer: #475569;
     --color-input-bg: #1d293d;
     --color-dark-hover: #475569;
 }
@@ -48,6 +50,18 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+.animate-shimmer {
+    animation: shimmer 1.2s infinite;
 }
 
 @layer components {
