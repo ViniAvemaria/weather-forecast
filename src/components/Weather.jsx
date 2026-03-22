@@ -3,16 +3,16 @@ import { Droplets, Wind, Eye, Sunrise, Sunset, Clock } from "lucide-react";
 import Header from "./Header";
 import Forecast from "./Forecast";
 import RecentSearch from "./RecentSearch";
+import WeatherSkeleton from "./skeleton/WeatherSkeleton";
+import ForecastSkeleton from "./skeleton/ForecastSkeleton";
 import { iconMap } from "@/utils/weatherIcon";
 import en from "i18n-iso-countries/langs/en.json";
 import countries from "i18n-iso-countries";
 countries.registerLocale(en);
 
 const Weather = () => {
-    const { weather, forecast, weatherLoading, forecastLoading, recentSearch } = useWeather();
-
+    const { weather, weatherLoading, forecast, forecastLoading, recentSearch } = useWeather();
     const Icon = iconMap[weather?.weather?.[0]?.icon];
-
     const daily = forecast?.list?.filter((item) => item.dt_txt?.includes("12:00:00"));
 
     const formatTime = (ts) =>
@@ -26,7 +26,9 @@ const Weather = () => {
         <div className="flex flex-col gap-10 pb-16">
             <Header />
 
-            {!weatherLoading && (
+            {weatherLoading ? (
+                <WeatherSkeleton />
+            ) : (
                 <div className="flex flex-col gap-6 bg-linear-to-br from-slate-800 to-slate-900 border border-primary-border rounded-lg p-8 max-sm:py-4">
                     <section className="flex justify-between max-xs:flex-col gap-10 max-sm:items-center">
                         <div className="flex flex-col gap-10">
@@ -99,17 +101,15 @@ const Weather = () => {
                 </div>
             )}
 
-            {!forecastLoading && (
-                <div>
-                    <h2 className="text-2xl mb-6">5-Day Forecast</h2>
+            <div>
+                <h2 className="text-2xl mb-6">5-Day Forecast</h2>
 
-                    <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-6">
-                        {daily.map((day) => (
-                            <Forecast key={day.dt} day={day} />
-                        ))}
-                    </div>
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-6">
+                    {forecastLoading
+                        ? [...Array(5)].map((_, i) => <ForecastSkeleton key={i} />)
+                        : daily.map((day) => <Forecast key={day.dt} day={day} />)}
                 </div>
-            )}
+            </div>
 
             <div>
                 <div className="flex items-center gap-2 mb-6">

@@ -7,12 +7,13 @@ const API_KEY = import.meta.env.VITE_OPEN_WEATHER_KEY;
 export function WeatherProvider({ children }) {
     const [searchResult, setSearchResult] = useState([]);
     const [coor, setCoor] = useState({ lat: null, lon: null });
+    const [searchResultLoading, setSearchResultLoading] = useState(false);
 
     const [weather, setWeather] = useState(null);
-    const [weatherLoading, setWeatherLoading] = useState(true);
+    const [weatherLoading, setWeatherLoading] = useState(false);
 
     const [forecast, setForecast] = useState(null);
-    const [forecastLoading, setForecastLoading] = useState(true);
+    const [forecastLoading, setForecastLoading] = useState(false);
 
     const [recentSearch, setRecentSearch] = useState(() => {
         const stored = localStorage.getItem("recentSearch");
@@ -20,6 +21,7 @@ export function WeatherProvider({ children }) {
     });
 
     const searchCities = async (query) => {
+        setSearchResultLoading(true);
         try {
             const res = await fetch(
                 `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${API_KEY}`,
@@ -32,10 +34,13 @@ export function WeatherProvider({ children }) {
         } catch (err) {
             console.error(err);
             setSearchResult([]);
+        } finally {
+            setSearchResultLoading(false);
         }
     };
 
     const fetchWeather = async () => {
+        setWeatherLoading(true);
         try {
             const res = await fetch(
                 `https://api.openweathermap.org/data/2.5/weather?lat=${coor.lat}&lon=${coor.lon}&appid=${API_KEY}&units=metric`,
@@ -55,6 +60,7 @@ export function WeatherProvider({ children }) {
     };
 
     const fetchForecast = async () => {
+        setForecastLoading(true);
         try {
             const res = await fetch(
                 `https://api.openweathermap.org/data/2.5/forecast?lat=${coor.lat}&lon=${coor.lon}&appid=${API_KEY}&units=metric`,
@@ -108,6 +114,7 @@ export function WeatherProvider({ children }) {
                 weatherLoading,
                 forecastLoading,
                 recentSearch,
+                searchResultLoading,
                 addRecentSearch,
                 removeRecentSearch,
                 setCoor,

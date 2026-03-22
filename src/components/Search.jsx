@@ -7,7 +7,7 @@ import { useWeather } from "@/contexts/WeatherContext";
 import RecentSearch from "./RecentSearch";
 
 const Search = () => {
-    const { searchResult, setSearchResult, setCoor, searchCities, recentSearch } = useWeather();
+    const { searchResult, setSearchResult, setCoor, searchCities, recentSearch, searchResultLoading } = useWeather();
     const [query, setQuery] = useState("");
     const [isResultOpen, setIsResultOpen] = useState(false);
     const [locationLoading, setLocationLoading] = useState(false);
@@ -16,8 +16,16 @@ const Search = () => {
     const mapPinIconRef = useRef(null);
 
     useEffect(() => {
-        if (searchResult.length) setIsResultOpen(true);
+        if (searchResult.length) {
+            setIsResultOpen(true);
+        } else {
+            setIsResultOpen(false);
+        }
     }, [searchResult]);
+
+    useEffect(() => {
+        if (!query) setSearchResult([]);
+    }, [query]);
 
     const handleLocation = async () => {
         setLocationLoading(true);
@@ -72,14 +80,14 @@ const Search = () => {
                                     setQuery("");
                                     inputRef.current.focus();
                                 }}
-                                className={`p-1.5 hover:text-primary-accent cursor-pointer transition-colors-opacity duration-150 ease ${query ? "opacity-100" : "opacity-0"}`}
+                                className={`p-1.5 hover:text-primary-accent cursor-pointer transition-colors-opacity duration-150 ease ${query ? "visible" : "hidden"}`}
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
                         <div
-                            className={`z-10 absolute w-full mt-1 bg-input-bg border border-primary-border rounded-lg overflow-y-scroll transition-opacity-height duration-300 ease ${isResultOpen ? "opacity-100 max-h-55" : "opacity-0 max-h-0"}`}
+                            className={`z-20 absolute w-full mt-1 bg-input-bg border border-primary-border rounded-lg overflow-y-scroll transition-opacity-height duration-300 ease ${isResultOpen ? "opacity-100 max-h-55" : "opacity-0 max-h-0"}`}
                         >
                             {searchResult.map((city) => (
                                 <button
@@ -100,21 +108,24 @@ const Search = () => {
                         <button
                             onMouseEnter={() => searchIconRef.current?.startAnimation()}
                             onMouseLeave={() => searchIconRef.current?.stopAnimation()}
-                            disabled={locationLoading}
                             onClick={() => {
                                 if (query !== "") searchCities(query);
                             }}
-                            className={`flex items-center justify-center gap-2 whitespace-nowrap bg-primary-accent hover:bg-accent-hover transition-colors duration-300 ease rounded-lg px-3 py-1.5 max-sm:w-full ${locationLoading ? "cursor-not-allowed" : "cursor-pointer"}`}
+                            disabled={locationLoading || searchResultLoading}
+                            className={`flex items-center justify-center gap-2 whitespace-nowrap relative overflow-hidden px-3 py-1.5 rounded-lg transition-colors duration-300 ease max-sm:w-full ${searchResultLoading ? "bg-primary-accent cursor-not-allowed" : "bg-primary-accent hover:bg-accent-hover cursor-pointer"}`}
                         >
-                            <SearchIcon ref={searchIconRef} size={16} />
-                            Search
+                            {searchResultLoading && (
+                                <span className="absolute inset-0 animate-shimmer bg-linear-to-r from-transparent via-secondary-shimmer to-transparent" />
+                            )}
+                            <SearchIcon ref={searchIconRef} size={16} className="z-10" />
+                            <span className="z-10">{searchResultLoading ? "Searching..." : "Search"}</span>
                         </button>
 
                         <button
                             onMouseEnter={() => mapPinIconRef.current?.startAnimation()}
                             onMouseLeave={() => mapPinIconRef.current?.stopAnimation()}
                             onClick={handleLocation}
-                            disabled={locationLoading}
+                            disabled={locationLoading || searchResultLoading}
                             className={`flex items-center justify-center gap-2 whitespace-nowrap relative overflow-hidden px-3 py-1.5 rounded-lg transition-colors duration-300 ease max-sm:w-full ${locationLoading ? "bg-secondary-bg cursor-not-allowed" : "bg-secondary-bg hover:bg-dark-hover cursor-pointer"}`}
                         >
                             {locationLoading && (
